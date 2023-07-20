@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -21,9 +22,10 @@ func HandleRequest(ctx context.Context, event MyEvent) (string, error) {
 	}
 
 	client := dynamodb.NewFromConfig(cfg)
+    tableName := os.Getenv("TABLE_NAME")
 
 	_, err = client.DeleteItem(ctx, &dynamodb.DeleteItemInput{
-		TableName: aws.String("MyTable"),
+		TableName: aws.String(tableName),
 		Key: map[string]types.AttributeValue{
 			"ID": &types.AttributeValueMemberS{
 				Value: event.ID,

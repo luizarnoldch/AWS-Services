@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -16,7 +17,6 @@ type MyEvent struct {
 	Email string `json:"email"`
 }
 
-
 func HandleRequest(ctx context.Context, event MyEvent) (string, error) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
@@ -24,9 +24,10 @@ func HandleRequest(ctx context.Context, event MyEvent) (string, error) {
 	}
 
 	client := dynamodb.NewFromConfig(cfg)
+	tableName := os.Getenv("TABLE_NAME")
 
 	_, err = client.PutItem(ctx, &dynamodb.PutItemInput{
-		TableName: aws.String("MyTable"),
+		TableName: aws.String(tableName),
 		Item: map[string]types.AttributeValue{
 			"ID": &types.AttributeValueMemberS{
 				Value: event.ID,

@@ -1,0 +1,6 @@
+*.zip
+*main 
+*go.sum
+*go.mod
+*.sum
+*.mod

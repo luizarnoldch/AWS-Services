@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"os"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -17,6 +18,8 @@ func HandleRequest(ctx context.Context) (string, error) {
 	}
 
 	client := dynamodb.NewFromConfig(cfg)
+    tableName := os.Getenv("TABLE_NAME")
+
 
 	input := &dynamodb.CreateTableInput{
 		AttributeDefinitions: []types.AttributeDefinition{
@@ -35,7 +38,7 @@ func HandleRequest(ctx context.Context) (string, error) {
 			ReadCapacityUnits:  aws.Int64(5),
 			WriteCapacityUnits: aws.Int64(5),
 		},
-		TableName: aws.String("MyTable"),
+		TableName: aws.String(tableName),
 	}
 
 	_, err = client.CreateTable(ctx, input)

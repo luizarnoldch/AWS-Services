@@ -1,0 +1,140 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Un ejemplo de SAM para una función Lambda y DynamoDB con la política DynamoDBCrudPolicy.
+
+Resources:
+  InsertTable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./InsertTable/main.zip
+      Handler: main
+      Runtime: go1.x
+      Timeout: 8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MyTable
+      Role: !GetAtt InsertTableRole.Arn
+  InsertTableRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: InsertTablePolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - dynamodb:PutItem
+            Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MyTable}'
+
+  ReadTable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./ReadTable/main.zip
+      Handler: main
+      Runtime: go1.x
+      Timeout: 8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MyTable
+      Role: !GetAtt ReadTableRole.Arn
+  ReadTableRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: ReadTablePolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - dynamodb:GetItem
+            - dynamodb:Scan
+            - dynamodb:Query
+            Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MyTable}'
+
+  UpdateTable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./UpdateTable/main.zip
+      Handler: main
+      Runtime: go1.x
+      Timeout: 8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MyTable
+      Role: !GetAtt UpdateTableRole.Arn
+  UpdateTableRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: UpdateTablePolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - dynamodb:UpdateItem
+            Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MyTable}'
+
+  DeleteTable:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: ./DeleteTable/main.zip
+      Handler: main
+      Runtime: go1.x
+      Timeout: 8
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MyTable
+      Role: !GetAtt DeleteTableRole.Arn
+  DeleteTableRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: lambda.amazonaws.com
+          Action: sts:AssumeRole
+      Policies:
+      - PolicyName: DeleteTablePolicy
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - dynamodb:DeleteItem
+            Resource: !Sub 'arn:aws:dynamodb:${AWS::Region}:${AWS::AccountId}:table/${MyTable}'
+
+  MyTable:
+    Type: AWS::Serverless::SimpleTable
+    Properties:
+      PrimaryKey:
+        Name: ID
+        Type: String
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
